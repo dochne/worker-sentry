@@ -13,22 +13,21 @@ npm install -D @cloudflare/worker-sentry
 ```js
 import { initSentry } from "@cloudflare/worker-sentry";
 
-addEventListener("fetch", (event) => {
-  const sentry = initSentry(event);
-  event.respondWith(handleRequest(event, sentry));
-});
+export default {
+  async fetch(request, env, context) {
+    const sentry = initSentry(request, env, context);
 
-async function handleRequest(request, sentry) {
-  try {
-    console.log("Got request", request);
-    const response = await fetch(request);
-    console.log("Got response", response);
-    return response;
-  } catch (e) {
-    sentry.captureException(e);
-    return new Response("internal error", { status: 500 });
+    try {
+      console.log("Got request", request);
+      const response = await fetch(request);
+      console.log("Got response", response);
+      return response;
+    } catch (e) {
+      sentry.captureException(e);
+      return new Response("internal error", { status: 500 });
+    }
   }
-}
+} 
 ```
 
 ## Additional `toucan-js` options
